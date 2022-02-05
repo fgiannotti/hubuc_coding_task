@@ -17,6 +17,14 @@ func main() {
 	sugar.Infow("Running go server...")
 
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) { c.JSON(200, gin.H{"message": "pong"}) })
+	r.GET("/ping", HealthCheck)
+	r.POST("/users/register", HandleRegister)
+	r.POST("/users/login", HandleRegister)
+	r.POST("/users/:username", HandleRegister)
+
 	r.Run(":8080")
+}
+
+func HealthCheck(c *gin.Context) {
+	c.JSON(200, gin.H{"message": "pong"})
 }
