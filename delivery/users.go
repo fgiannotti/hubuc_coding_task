@@ -1,30 +1,24 @@
-package main
+package delivery
 
 import (
+	"github.com/fgiannotti/hubuc_coding_task/core/domain"
+	"github.com/fgiannotti/hubuc_coding_task/core/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
 )
 
-type registerRequest struct {
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email"`
-	Password string `json:"password" binding:"required"`
-}
-
-type ErrorResponse struct {
-	StatusCode int    `json:"status"`
-	Message    string `json:"message"`
-	ErrorMsg   string `json:"error"`
-}
-
-type RegistrationController struct {
+type UsersController struct {
 	logger      *zap.SugaredLogger
-	users       UsersRepo
-	encrpytions Encryptions
+	users       services.UsersRepo
+	encrpytions services.Encryptions
 }
 
-func (controller *RegistrationController) HandleRegister(c *gin.Context) {
+func NewUsersController(logger *zap.SugaredLogger, users services.UsersRepo, encrpytions services.Encryptions) UsersController {
+	return UsersController{logger, users, encrpytions}
+}
+
+func (controller *UsersController) HandleGetUser(c *gin.Context) {
 	request, err := getRegisterRequestFromBody(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest,
@@ -34,7 +28,7 @@ func (controller *RegistrationController) HandleRegister(c *gin.Context) {
 
 	_, err = controller.users.Get(request.Username)
 	if err != nil {
-		if err == UserNotFoundError(request.Username) {
+		if err == services.UserNotFoundError(request.Username) {
 			errResponse := ErrorResponse{http.StatusConflict, "Username already used", err.Error()}
 			controller.logger.Infow(errResponse.ErrorMsg, "username", request.Username)
 			c.JSON(http.StatusConflict, errResponse)
@@ -54,7 +48,7 @@ func (controller *RegistrationController) HandleRegister(c *gin.Context) {
 		return
 	}
 
-	newUsr := User{Name: request.Username, Email: request.Email, EncryptedPwd: encryptedPwd}
+	newUsr := domain.User{Name: request.Username, Email: request.Email, EncryptedPwd: encryptedPwd}
 	err = controller.users.Save(newUsr)
 	if err != nil {
 		errResponse := ErrorResponse{http.StatusInternalServerError, "Error saving usr", err.Error()}
@@ -63,15 +57,5 @@ func (controller *RegistrationController) HandleRegister(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, nil)
-}
-
-func getRegisterRequestFromBody(c *gin.Context) (registerRequest, error) {
-	request := registerRequest{}
-
-	err := c.BindJSON(&request)
-	if err != nil {
-		return registerRequest{}, err
-	}
-	return request, nil
+	c.JSON(http.StatusCreated, nil)
 }
