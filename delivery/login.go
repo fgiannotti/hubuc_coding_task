@@ -22,7 +22,7 @@ func (controller *UsersController) HandleLogin(c *gin.Context) {
 	usr, err := controller.users.Get(request.Username)
 	if err != nil {
 		if err == services.UserNotFoundError(request.Username) {
-			errResponse := ErrorResponse{http.StatusConflict, "User not found", err.Error()}
+			errResponse := ErrorResponse{http.StatusNotFound, "User not found", err.Error()}
 			controller.logger.Infow(errResponse.ErrorMsg, "username", request.Username)
 			c.JSON(errResponse.StatusCode, errResponse)
 			return

@@ -10,12 +10,16 @@ type BcryptEncryptionsService struct {
 	cost int
 }
 
-func (es *BcryptEncryptionsService) Compare(encryptedPwd string, pwd string) (bool, error) {
-	panic("implement me")
+func NewBcryptEncryptionsService() Encryptions {
+	return &BcryptEncryptionsService{cost: bcrypt.MinCost}
 }
 
-func NewBcryptEncryptionsService() Encryptions {
-	return &BcryptEncryptionsService{cost: bcrypt.DefaultCost}
+func (es *BcryptEncryptionsService) Compare(encryptedPwd string, pwd string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(encryptedPwd), []byte(pwd))
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (es *BcryptEncryptionsService) Encrypt(pwd string) (string, error) {
