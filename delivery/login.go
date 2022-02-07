@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"errors"
 	"github.com/fgiannotti/hubuc_coding_task/core/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -22,7 +23,7 @@ func (controller *UsersController) HandleLogin(c *gin.Context) {
 
 	usr, err := controller.users.Get(request.Username)
 	if err != nil {
-		if err == services.UserNotFoundError(request.Username) {
+		if errors.Is(err,services.UserNotFoundError) {
 			errResponse := ErrorResponse{http.StatusNotFound, "User not found", err.Error()}
 			controller.logger.Infow(errResponse.ErrorMsg, "username", request.Username)
 			c.JSON(errResponse.StatusCode, errResponse)
@@ -48,7 +49,7 @@ func (controller *UsersController) HandleLogin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, "logged in")
 }
 
 func getLoginRequestFromBody(c *gin.Context) (loginRequest, error) {

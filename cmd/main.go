@@ -16,7 +16,7 @@ func main() {
 
 	sugar := logger.Sugar()
 	sugar.Info("Running go server...")
-	usersRepo := services.NewLocalUsersRepo()
+	usersRepo := services.NewLocalUsersRepo(sugar)
 	encryptionsService := services.NewBcryptEncryptionsService()
 
 	usersController := delivery.NewUsersController(sugar, usersRepo, encryptionsService)

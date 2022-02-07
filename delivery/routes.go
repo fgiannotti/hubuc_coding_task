@@ -7,7 +7,7 @@ func SetupRouter(usersController UsersController) *gin.Engine {
 	r.GET("/ping", HealthCheck)
 	r.POST("/users/register", usersController.HandleRegister)
 	r.POST("/users/login", usersController.HandleLogin)
-	r.POST("/users/:username", usersController.HandleGetUser)
+	r.GET("/users/:username", usersController.HandleGetUser)
 
 	return r
 }

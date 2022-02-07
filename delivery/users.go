@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"errors"
 	"github.com/fgiannotti/hubuc_coding_task/core/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -22,7 +23,7 @@ func (controller *UsersController) HandleGetUser(c *gin.Context) {
 
 	usr, err := controller.users.Get(username)
 	if err != nil {
-		if err == services.UserNotFoundError(username) {
+		if errors.Is(err,services.UserNotFoundError) {
 			errResponse := ErrorResponse{http.StatusNotFound, "Username already used", err.Error()}
 			controller.logger.Infow(errResponse.ErrorMsg, "username", username)
 			c.JSON(http.StatusConflict, errResponse)

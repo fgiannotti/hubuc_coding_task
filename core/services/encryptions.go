@@ -6,6 +6,7 @@ type Encryptions interface {
 	Encrypt(pwd string) (string, error)
 	Compare(encryptedPwd string, pwd string) (bool,error)
 }
+
 type BcryptEncryptionsService struct {
 	cost int
 }

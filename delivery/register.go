@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"errors"
 	"github.com/fgiannotti/hubuc_coding_task/core/domain"
 	"github.com/fgiannotti/hubuc_coding_task/core/services"
 	"github.com/gin-gonic/gin"
@@ -28,11 +29,13 @@ func (controller *UsersController) HandleRegister(c *gin.Context) {
 	}
 
 	usrFound, err := controller.users.Get(request.Username)
-	if err != nil && err != services.UserNotFoundError(request.Username) {
-		errResponse := ErrorResponse{http.StatusInternalServerError, "Error getting user from db", err.Error()}
-		controller.logger.Infow(errResponse.Message, "username", request.Username)
-		c.JSON(http.StatusInternalServerError, errResponse)
-		return
+	if err != nil {
+		if !errors.Is(err, services.UserNotFoundError) {
+			errResponse := ErrorResponse{http.StatusInternalServerError, "Error getting user from db", err.Error()}
+			controller.logger.Infow(errResponse.Message, "username", request.Username)
+			c.JSON(http.StatusInternalServerError, errResponse)
+			return
+		}
 	}
 
 	if usrFound.Name == request.Username {

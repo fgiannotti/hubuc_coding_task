@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/fgiannotti/hubuc_coding_task/core/domain"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 	"testing"
 )
 
@@ -21,6 +22,7 @@ func TestGetUserNoMatchError(t *testing.T) {
 	emptyMap := map[string]domain.User{}
 	usersRepo := &LocalUsersRepo{
 		DB: emptyMap,
+		logger: zaptest.NewLogger(t).Sugar(),
 	}
 	_, err := usersRepo.Get("randommmm")
 	assert.NotNil(t, err)

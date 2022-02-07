@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fgiannotti/hubuc_coding_task/core/domain"
+	"go.uber.org/zap"
 )
 
-var UserNotFoundError = func(username string) error { return errors.New(fmt.Sprintf("User %s not found", username)) }
+var UserNotFoundError = errors.New("User not found")
 
 type UsersRepo interface {
 	Save(user domain.User) error
@@ -14,11 +15,12 @@ type UsersRepo interface {
 }
 
 type LocalUsersRepo struct {
-	DB map[string]domain.User
+	DB     map[string]domain.User
+	logger *zap.SugaredLogger
 }
 
-func NewLocalUsersRepo() UsersRepo {
-	return &LocalUsersRepo{DB: map[string]domain.User{}}
+func NewLocalUsersRepo(logger *zap.SugaredLogger) UsersRepo {
+	return &LocalUsersRepo{DB: map[string]domain.User{}, logger: logger}
 }
 
 // Save - Always overwrites entry
@@ -30,7 +32,8 @@ func (l *LocalUsersRepo) Save(user domain.User) error {
 func (l *LocalUsersRepo) Get(username string) (domain.User, error) {
 	user, ok := l.DB[username]
 	if !ok {
-		return domain.User{}, UserNotFoundError(username)
+		l.logger.Info("User not found in map")
+		return domain.User{}, fmt.Errorf("%w: username %s", UserNotFoundError, username)
 	}
 
 	return user, nil
