@@ -1,6 +1,6 @@
-###HUBUC coding task.
+HUBUC coding task.
 
-###Golang API with 3 endpoints:
+Golang API with 3 endpoints:
 
 - Login
 - Register
