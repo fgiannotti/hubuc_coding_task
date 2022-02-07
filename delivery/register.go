@@ -27,17 +27,18 @@ func (controller *UsersController) HandleRegister(c *gin.Context) {
 		return
 	}
 
-	_, err = controller.users.Get(request.Username)
-	if err != nil {
-		if err == services.UserNotFoundError(request.Username) {
-			errResponse := ErrorResponse{http.StatusConflict, "Username already used", err.Error()}
-			controller.logger.Infow(errResponse.ErrorMsg, "username", request.Username)
-			c.JSON(http.StatusConflict, errResponse)
-			return
-		}
+	usrFound, err := controller.users.Get(request.Username)
+	if err != nil && err != services.UserNotFoundError(request.Username) {
 		errResponse := ErrorResponse{http.StatusInternalServerError, "Error getting user from db", err.Error()}
 		controller.logger.Infow(errResponse.Message, "username", request.Username)
 		c.JSON(http.StatusInternalServerError, errResponse)
+		return
+	}
+
+	if usrFound.Name == request.Username {
+		errResponse := ErrorResponse{http.StatusConflict, "Username already used", ""}
+		controller.logger.Infow(errResponse.ErrorMsg, "username", request.Username)
+		c.JSON(http.StatusBadRequest, errResponse)
 		return
 	}
 

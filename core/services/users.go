@@ -21,8 +21,10 @@ func NewLocalUsersRepo() UsersRepo {
 	return &LocalUsersRepo{DB: map[string]domain.User{}}
 }
 
+// Save - Always overwrites entry
 func (l *LocalUsersRepo) Save(user domain.User) error {
-	panic("implement me")
+	l.DB[user.Name] = user
+	return nil
 }
 
 func (l *LocalUsersRepo) Get(username string) (domain.User, error) {

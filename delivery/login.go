@@ -14,8 +14,9 @@ type loginRequest struct {
 func (controller *UsersController) HandleLogin(c *gin.Context) {
 	request, err := getLoginRequestFromBody(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest,
-			ErrorResponse{http.StatusBadRequest, "Invalid body", err.Error()})
+		errResponse := ErrorResponse{http.StatusBadRequest, "Invalid body", err.Error()}
+		controller.logger.Info(errResponse.ErrorMsg)
+		c.JSON(errResponse.StatusCode, errResponse)
 		return
 	}
 
