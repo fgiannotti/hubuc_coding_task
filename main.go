@@ -14,11 +14,11 @@ func main() {
 	defer logger.Sync()
 
 	sugar := logger.Sugar()
-	sugar.Infow("Running go server...")
-
+	sugar.Info("Running go server...")
+	regController := RegistrationController{users: NewLocalUsersRepo(), logger: sugar, encrpytions: NewBcryptEncryptionsService()}
 	r := gin.Default()
 	r.GET("/ping", HealthCheck)
-	r.POST("/users/register", HandleRegister)
+	r.POST("/users/register", regController.HandleRegister)
 	r.POST("/users/login", HandleRegister)
 	r.POST("/users/:username", HandleRegister)
 
